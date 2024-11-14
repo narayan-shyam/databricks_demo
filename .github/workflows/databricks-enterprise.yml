@@ -68,28 +68,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Configure Git
-        run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-          
       - name: Build Wheel
         run: |
           pip install build
           python -m build
-          
-      - name: Version Tagging
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          BUILD_ID=$(date +"%Y%m%d%H%M%S")
-          echo "##[group]Tagging Build with ID: $BUILD_ID"
-          git tag -a v$BUILD_ID -m "Build version for ${{ inputs.environment }}"
-          git push https://${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git --tags
           
       - uses: actions/upload-artifact@v3
         with:
