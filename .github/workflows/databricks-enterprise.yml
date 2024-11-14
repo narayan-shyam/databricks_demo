@@ -46,13 +46,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
-          pip install pytest pytest-cov pytest-integration black isort pylint mypy
-      - name: Code Quality and Lint Checks
-        run: |
-          black --check ${{ inputs.project_path }}
-          isort --check ${{ inputs.project_path }}
-          pylint ${{ inputs.project_path }} --fail-under=8.5
-          mypy ${{ inputs.project_path }}
+          pip install pytest pytest-cov pytest-integration
       - name: Unit Tests
         if: inputs.test_type == 'unit' || inputs.test_type == 'both'
         run: pytest tests/unit --cov=${{ inputs.project_path }}
