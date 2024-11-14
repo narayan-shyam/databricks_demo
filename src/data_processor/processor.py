@@ -1,6 +1,6 @@
 # src/data_processor/processor.py
-from typing import Dict, List
 import pandas as pd
+from typing import Dict, List
 
 
 class DataProcessor:
