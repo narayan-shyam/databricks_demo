@@ -1,0 +1,31 @@
+# .github/workflows/deploy.yml
+name: Deploy to Databricks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  dev-deploy:
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/databricks-enterprise.yml
+    with:
+      environment: 'development'
+      artifact_types: 'all'
+      project_path: 'src/data_processor'
+      databricks_path: '/Shared/data_processor/dev'
+      test_type: 'unit'
+    secrets: inherit
+
+  prod-deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/databricks-enterprise.yml
+    with:
+      environment: 'production'
+      artifact_types: 'all'
+      project_path: 'src/data_processor'
+      databricks_path: '/Shared/data_processor/prod'
+      test_type: 'both'
+    secrets: inherit
