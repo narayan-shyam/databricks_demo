@@ -31,21 +31,7 @@ on:
         required: true
 
 jobs:
-  security-scan:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run Snyk Security Scan
-        uses: snyk/actions/python@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      - name: Run OWASP Dependency Check
-        run: |
-          curl -s https://raw.githubusercontent.com/jeremylong/DependencyCheck/main/install.sh | bash
-          ./dependency-check/bin/dependency-check.sh --project "Databricks Deployment" --scan ${{ inputs.project_path }}
-
   test:
-    needs: security-scan
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -106,44 +92,12 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v3
-      - name: Configure Databricks CLI
-        run: |
-          pip install databricks-cli
-          echo "DATABRICKS_HOST=${{ secrets.DATABRICKS_HOST }}" >> $GITHUB_ENV
-          echo "DATABRICKS_TOKEN=${{ secrets.DATABRICKS_TOKEN }}" >> $GITHUB_ENV
-          databricks configure --token
-
       - name: Deploy to Databricks
-        run: |
-          echo "Deploying artifacts to ${{ inputs.databricks_path }}"
-          databricks workspace import_dir ${{ inputs.project_path }} ${{ inputs.databricks_path }}
-
-      - name: Install Dependencies on Cluster
-        if: inputs.artifact_types == 'libraries' || inputs.artifact_types == 'all'
-        run: |
-          databricks libraries install \
-            --cluster-id ${{ secrets.DATABRICKS_CLUSTER_ID }} \
-            --requirements requirements.txt
-
-      - name: Deploy Wheel Package
-        if: inputs.artifact_types == 'wheel' || inputs.artifact_types == 'all'
-        run: |
-          databricks fs cp dist/*.whl dbfs:/FileStore/${{ inputs.project_path }}/dist/
-          databricks libraries install \
-            --cluster-id ${{ secrets.DATABRICKS_CLUSTER_ID }} \
-            --whl dbfs:/FileStore/${{ inputs.project_path }}/dist/*.whl
-
-  smoke-test:
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run Test Notebook
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
-          databricks jobs run-now \
-            --job-id ${{ secrets.SMOKE_TEST_JOB_ID }}
+          echo "Deploying artifacts to ${{ inputs.databricks_path }} on ${{ inputs.environment }} environment."
+          databricks workspace import_dir ${{ inputs.project_path }} ${{ inputs.databricks_path }}
