@@ -87,18 +87,17 @@ jobs:
       
       - name: Install Databricks CLI
         run: |
-          pip install databricks-cli
+          pip install databricks-cli urllib3==1.26.15
           
       - name: Configure Databricks
+        run: |
+          echo "machine ${{ secrets.DATABRICKS_HOST }} login token password ${{ secrets.DATABRICKS_TOKEN }}" > ~/.netrc
+          chmod 600 ~/.netrc
+          
+      - name: Deploy to Databricks
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
-          echo "DATABRICKS_HOST=$DATABRICKS_HOST" >> $GITHUB_ENV
-          echo "DATABRICKS_TOKEN=$DATABRICKS_TOKEN" >> $GITHUB_ENV
-          databricks configure --token
-          
-      - name: Deploy to Databricks
-        run: |
-          echo "Deploying artifacts to ${{ inputs.databricks_path }} on ${{ inputs.environment }} environment."
+          echo "Deploying artifacts to ${{ inputs.databricks_path }}"
           databricks workspace import_dir ${{ inputs.project_path }} ${{ inputs.databricks_path }}
