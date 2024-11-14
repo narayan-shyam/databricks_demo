@@ -100,4 +100,5 @@ jobs:
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
           echo "Deploying artifacts to ${{ inputs.databricks_path }}"
-          databricks workspace import_dir ${{ inputs.project_path }} ${{ inputs.databricks_path }}
+          # Add overwrite flag
+          databricks workspace import_dir ${{ inputs.project_path }} ${{ inputs.databricks_path }} --overwrite
