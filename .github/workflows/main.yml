@@ -1,0 +1,16 @@
+name: Deploy to Databricks
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    uses: narayan-shyam/databricks-devops/.github/workflows/databricks-enterprise.yml@main
+    with:
+      environment: 'development'
+      artifact_types: 'all'
+      project_path: 'src/data_processor'
+      databricks_path: '/Shared/data_processor/dev'
+      test_type: 'unit'
+    secrets: inherit
