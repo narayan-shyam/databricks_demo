@@ -6,9 +6,6 @@ on:
 jobs:
   deploy:
     uses: narayan-shyam/databricks-devops/.github/workflows/databricks-enterprise.yml@main
-    # uses: narayan-shyam/databricks-devops/.github/workflows/databricks-enterprise.yml@main
-    # OR try with ref:
-    # uses: narayan-shyam/databricks-devops/.github/workflows/databricks-enterprise.yml@refs/heads/main
     with:
       environment: 'development'
       artifact_types: 'all'
