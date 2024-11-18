@@ -9,6 +9,37 @@ Enterprise-grade CI/CD template for deploying Python code, notebooks, and librar
 - Code quality checks (black, pylint, mypy)
 - Test coverage reporting
 
+## Repository Setup
+
+This project uses a two-repository approach:
+1. **Template Repository**: [databricks-devops](https://github.com/narayan-shyam/databricks-devops)
+   - Contains reusable CI/CD workflows
+   - Must be public for non-Enterprise GitHub accounts
+   - Contains core deployment logic
+
+2. **Project Repository** (Current): databricks_demo
+   - Contains project-specific code
+   - Uses workflows from template repository
+   - Configures environment-specific settings
+
+### GitHub Enterprise vs Non-Enterprise Setup
+
+#### For GitHub Enterprise Users:
+- Template repository can remain private
+- Configure repository access in organization settings
+- Use organization-specific workflow references:
+  ```yaml
+  uses: your-org/databricks-devops/.github/workflows/databricks-enterprise.yml@main
+  ```
+
+#### For Non-Enterprise GitHub Users:
+- Template repository must be public
+- No special organization settings required
+- Use public repository reference:
+  ```yaml
+  uses: narayan-shyam/databricks-devops/.github/workflows/databricks-enterprise.yml@main
+  ```
+
 ## Project Structure
 ```
 databricks_demo/
@@ -18,6 +49,16 @@ databricks_demo/
 ├── tests/                # Unit and integration tests
 └── requirements.txt      # Dependencies
 ```
+
+## Workflow Structure
+```
+databricks_demo/
+└── .github/
+    └── workflows/
+        └── main.yml       # Calls template workflow from databricks-devops repo
+```
+
+This workflow calls the enterprise deployment template with project-specific configurations.
 
 ## Prerequisites Configuration
 
@@ -53,7 +94,16 @@ databricks_demo/
 
 ### 2. GitHub Repository Setup
 
-#### Configure GitHub Secrets:
+#### a. Template Repository Access
+1. Ensure access to databricks-devops repository
+2. For non-Enterprise GitHub:
+   - Verify template repository is public
+   - No additional access configuration needed
+3. For Enterprise GitHub:
+   - Configure organization-level access
+   - Grant workflow permissions
+
+#### b. Configure GitHub Secrets:
 1. Go to your GitHub repository
 2. Click on "Settings" tab
 3. In the left sidebar, click "Secrets and variables" → "Actions"
@@ -158,6 +208,7 @@ databricks workspace export /Shared/data_processor/prod/processor.py processor.p
    - Verify secrets are correctly set in GitHub
    - Check Databricks token hasn't expired
    - Ensure paths exist in Databricks workspace
+   - Verify template repository accessibility (public/private settings)
 
 2. Tests Failed:
    - Verify virtual environment is activated
@@ -168,3 +219,8 @@ databricks workspace export /Shared/data_processor/prod/processor.py processor.p
    - Verify Databricks token permissions
    - Check workspace access rights
    - Ensure cluster access permissions
+
+4. Workflow Reference Issues:
+   - For non-Enterprise: Verify template repo is public
+   - For Enterprise: Check organization access settings
+   - Verify workflow file paths in both repositories
